@@ -1,10 +1,32 @@
 {
   "name": "twitter-clone-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "An university project to clone Twitter",
+  "author": "Vitor Gomes <vitorgomes2007@hotmail.com> (https://github.com/vitoorgomes)",
+  "contributors": [
+    {
+      "name": "Glória Claro",
+      "email": "gloria.claro1209@gmail.com"
+    },
+    {
+      "name": "Iago Borba",
+      "email": "iago.borba.almeida@gmail.com"
+    },
+    {
+      "name": "Murilo da Silva",
+      "email": "murilo.engcomp@gmail.com"
+    },
+    {
+      "name": "Nicolas Bortoluzzi",
+      "email": "bortoluzzinicolas@gmail.com"
+    },
+    {
+      "name": "Rodrigo Borges",
+      "email": "rodrigo_craft@live.com"
+    }
+  ],
   "private": true,
-  "license": "UNLICENSED",
+  "license": "ISC",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -21,14 +43,16 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@gcoreplus/nestjs-aws-serverless": "^1.1.1-rc1",
     "@nestjs/common": "^7.6.15",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.6.15",
     "@nestjs/jwt": "^7.2.0",
     "@nestjs/mongoose": "^7.2.4",
     "@nestjs/passport": "^7.1.5",
-    "@nestjs/platform-express": "^7.6.15",
+    "@nestjs/platform-express": "^7.6.18",
     "@nestjs/swagger": "^4.8.1",
+    "aws-serverless-express": "^3.4.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
