@@ -1,53 +1,59 @@
 import { Model } from 'mongoose';
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  create(createUserDto: CreateUserDto): Promise<User> {
-    let user = new this.userModel(createUserDto);
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    await this.checkUniques(createUserDto);
 
-    user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(8));
+    const user = new this.userModel(createUserDto);
 
-    return user.save();
+    return await user.save();
   }
 
-  findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+  async findAll(): Promise<User[]> {
+    return await this.userModel.find().exec();
   }
 
-  async findOne(id: string) {
-    try {
-      return await this.userModel.findById(id, { __v: false, password: false });
-    } catch {
-      throw new BadRequestException("This user does not exists");
-    }
+  async findOne(id: string): Promise<User> {
+    const user = await this.userModel.findOne({ _id: id }, { __v: false });
+
+    if (!user) throw new BadRequestException('This user does not exists');
+
+    return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findOne({_id: id}, { __v: false});
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    await this.findOne(id);
+    await this.checkUniques(updateUserDto);
 
-    if (!user)
-      throw new BadRequestException("This user does not exists");
-
-    console.log(updateUserDto.password, user.password);
-
-    if (!bcrypt.compareSync(updateUserDto.password, user.password)) {
-      throw new UnauthorizedException("Invalid user");
-    }
-
-    updateUserDto.password = bcrypt.hashSync(updateUserDto.password, bcrypt.genSaltSync(8));
-
-    return this.userModel.updateOne( {_id: id}, updateUserDto );
+    return await this.userModel.replaceOne({ _id: id }, updateUserDto);
   }
 
-  async remove(id: string) {
-    return await this.userModel.findOneAndDelete( {_id: id} );
+  async remove(id: string): Promise<User | null> {
+    await this.findOne(id);
+
+    return this.userModel.findOneAndDelete({ _id: id });
+  }
+
+  private async checkUniques(
+    userDTO: CreateUserDto | UpdateUserDto,
+  ): Promise<void> {
+    const emailUser = await this.userModel.findOne({
+      email: userDTO.email,
+    });
+    const usernameUser = await this.userModel.findOne({
+      username: userDTO.username,
+    });
+
+    if (emailUser) throw new BadRequestException('Email is already in use.');
+    if (usernameUser)
+      throw new BadRequestException('Username is already in use.');
   }
 }

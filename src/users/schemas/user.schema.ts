@@ -1,17 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Date, Document } from 'mongoose';
+import { Avatar } from './avatar.schema';
+import { UserShort, UserShortSchema } from './userShort.schema';
 
 export type UserDocument = User & Document;
 
-@Schema()
-export class User {
+@Schema({ timestamps: true })
+export class User extends Document {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   username: string;
 
   @Prop({ default: false })
@@ -20,20 +22,20 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop()
+  @Prop({ default: '' })
   bio: string;
 
-  @Prop()
+  @Prop({ type: Date, default: null })
   birthday: Date;
 
-  @Prop({ required: true, default: [] })
-  followers: string[];
+  @Prop({ type: [UserShortSchema], required: true, default: [] })
+  followers: UserShort[];
 
   @Prop({ required: true, default: 0 })
   followersCount: number;
 
-  @Prop({ required: true, default: [] })
-  following: string[];
+  @Prop({ type: [UserShortSchema], required: true, default: [] })
+  following: UserShort[];
 
   @Prop({ required: true, default: 0 })
   followingCount: number;
@@ -41,14 +43,14 @@ export class User {
   @Prop({ required: true, default: 0 })
   statusesCount: number;
 
-  @Prop({ required: true, default: Date.now })
-  createdAt: Date;
+  @Prop({ required: true, default: 0 })
+  favoritesCount: number;
 
-  @Prop({ required: true, default: Date.now })
-  updatedAt: Date;
+  @Prop({ required: true, default: true })
+  isActive: boolean;
 
-  @Prop({required: true, default: "unknown.png"})
-  avatar: string;
+  @Prop({ type: Avatar })
+  avatar: Avatar;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

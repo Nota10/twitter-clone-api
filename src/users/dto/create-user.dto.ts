@@ -1,65 +1,74 @@
-import { IsEmail, IsNotEmpty, IsBoolean, IsDate, IsArray, Length, IsNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsBoolean,
+  IsDate,
+  IsArray,
+  Length,
+  IsNumber,
+  IsString,
+  IsObject,
+  IsOptional,
+} from 'class-validator';
 import { Date } from 'mongoose';
-
-type UserShort = {
-    id: string;
-    name: string;
-    username: string;
-    protected: boolean;
-    avatar: Avatar;
-};
-
-type Avatar = {
-    key: string;
-    url: string;
-    createdAt: Date;
-    updatedAt: Date;
-};
+import { Avatar } from 'src/common/interfaces/avatar.interface';
+import { UserShort } from 'src/common/interfaces/userShort.interface';
 
 export class CreateUserDto {
-    @IsNotEmpty()
-    @IsString()
-    @Length(2, 100)
-    name: string;
+  @IsString()
+  @Length(2, 100)
+  name: string;
 
-    @IsNotEmpty()
-    @IsString()
-    @IsEmail()
-    email: string;
+  @IsString()
+  @IsEmail()
+  email: string;
 
-    @IsNotEmpty()
-    @IsString()
-    @Length(2, 50)
-    username: string;
+  @IsString()
+  @Length(5, 50)
+  username: string;
 
-    @IsBoolean()
-    protected: boolean;
+  @IsOptional()
+  @IsBoolean()
+  protected: boolean;
 
-    @IsNotEmpty()
-    @IsString()
-    password: string;
+  @IsNotEmpty()
+  @IsString()
+  password: string;
 
-    @IsString()
-    @Length(1, 255)
-    bio: string
+  @IsOptional()
+  @IsString()
+  @Length(1, 255)
+  bio: string;
 
-    @IsDate()
-    birthday: Date
+  @IsOptional()
+  @IsDate()
+  birthday: Date;
 
-    @IsArray()
-    followers: UserShort[]
+  @IsOptional()
+  @IsArray({ each: true })
+  followers: UserShort[];
 
-    @IsNumber()
-    followersCount: number
+  @IsOptional()
+  @IsNumber()
+  followersCount: number;
 
-    @IsArray()
-    following: UserShort[]
+  @IsOptional()
+  @IsArray({ each: true })
+  following: UserShort[];
 
-    @IsNumber()
-    followingCount: number
-    
-    @IsNumber()
-    statusesCount: number;
+  @IsOptional()
+  @IsNumber()
+  followingCount: number;
 
-    avatar: Avatar;
+  @IsOptional()
+  @IsNumber()
+  statusesCount: number;
+
+  @IsOptional()
+  @IsNumber()
+  favoritesCount: number;
+
+  @IsOptional()
+  @IsObject()
+  avatar: Avatar;
 }
