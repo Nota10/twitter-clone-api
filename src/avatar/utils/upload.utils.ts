@@ -12,7 +12,7 @@ export const imageFileFilter = (
   if (!regex.test(file.mimetype)) {
     return callback(
       new BadRequestException(
-        'File not allowed. Type must be jpg, jpeg or png',
+        `Arquivo '${file.mimetype}' não permitido. O tipo deve ser jpg, jpeg ou png`,
       ),
       false,
     );
@@ -20,13 +20,11 @@ export const imageFileFilter = (
   callback(null, true);
 };
 
-export const editFileName = (
-  req: Request,
+export const generateFileKey = (
+  userId: string,
   file: Express.Multer.File,
-  callback: (error: Error | null, filename: string) => void,
-): void => {
+): string => {
   const fieldName = file.fieldname;
-  const userId = req.params.id;
   const fileExtName = extname(file.originalname);
-  callback(null, `${fieldName}-${userId}${fileExtName}`);
+  return `${fieldName}-${userId}${fileExtName}`;
 };

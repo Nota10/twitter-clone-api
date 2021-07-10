@@ -15,13 +15,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { editFileName, imageFileFilter } from 'src/avatar/utils/upload.utils';
+import { imageFileFilter } from 'src/avatar/utils/upload.utils';
 import { Request } from 'express';
+import { AvatarService } from 'src/avatar/avatar.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly avatarService: AvatarService,
+  ) {}
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
@@ -54,12 +57,9 @@ export class UsersController {
   @Post(':id/avatar')
   @UseInterceptors(
     FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: editFileName,
-      }),
       limits: {
         files: 1,
+        fileSize: 1048576 * 5, // 5mb
       },
       fileFilter: imageFileFilter,
     }),
@@ -69,7 +69,18 @@ export class UsersController {
     @Req() req: Request,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    console.log(id, file);
-    return await this.usersService.updateAvatar(id, file);
+    try {
+      await this.avatarService.delete(id);
+      const avatarInfo = await this.avatarService.upload(id, file);
+
+      return await this.usersService.updateAvatar(
+        id,
+        avatarInfo.Key,
+        avatarInfo.Location,
+      );
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.message);
+    }
   }
 }

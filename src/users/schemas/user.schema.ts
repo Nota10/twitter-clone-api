@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Avatar } from 'src/avatar/schemas/avatar.schema';
+import { Avatar, AvatarModel } from 'src/avatar/schemas/avatar.schema';
 import { UserShort, UserShortSchema } from './userShort.schema';
 
 export type UserDocument = User & Document;
@@ -49,7 +49,7 @@ export class User extends Document {
   @Prop({ required: true, default: true })
   isActive: boolean;
 
-  @Prop({ type: Avatar })
+  @Prop({ type: Avatar, default: new AvatarModel() })
   avatar: Avatar;
 }
 
