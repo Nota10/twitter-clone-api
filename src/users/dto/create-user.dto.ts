@@ -23,6 +23,7 @@ export class CreateUserDto {
   @Length(5, 50)
   username: string;
 
+  @IsOptional()
   @IsString()
   @Length(1, 255)
   bio: string;
