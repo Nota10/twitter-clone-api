@@ -3,7 +3,7 @@ import { Document, model } from 'mongoose';
 
 export type AvatarDocument = Avatar & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, _id: false })
 export class Avatar extends Document {
   @Prop({ required: true, unique: true })
   key: string;

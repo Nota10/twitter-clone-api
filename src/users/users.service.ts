@@ -1,4 +1,4 @@
-import { Model, QueryOptions } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   BadRequestException,
   Injectable,
@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
+import { AvatarModel } from 'src/avatar/schemas/avatar.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -83,5 +84,17 @@ export class UsersService {
     await this.findOne(id);
 
     return this.userModel.findOneAndDelete({ _id: id });
+  }
+
+  async updateAvatar(id: string, file: Express.Multer.File): Promise<User> {
+    const user = await this.findOne(id, null);
+
+    user.avatar = new AvatarModel({
+      key: file.filename,
+      url: '',
+    });
+
+    await this.userModel.updateOne({ _id: id }, user);
+    return await this.findOne(id);
   }
 }

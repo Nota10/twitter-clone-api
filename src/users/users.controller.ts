@@ -6,12 +6,18 @@ import {
   Patch,
   Param,
   Delete,
-  UnauthorizedException,
+  UseInterceptors,
+  UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { editFileName, imageFileFilter } from 'src/avatar/utils/upload.utils';
+import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -43,5 +49,27 @@ export class UsersController {
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<User | null> {
     return await this.usersService.remove(id);
+  }
+
+  @Post(':id/avatar')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: editFileName,
+      }),
+      limits: {
+        files: 1,
+      },
+      fileFilter: imageFileFilter,
+    }),
+  )
+  async updateAvatar(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<User> {
+    console.log(id, file);
+    return await this.usersService.updateAvatar(id, file);
   }
 }
