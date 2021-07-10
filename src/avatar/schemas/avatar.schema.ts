@@ -5,12 +5,11 @@ export type AvatarDocument = Avatar & Document;
 
 @Schema({ timestamps: true, _id: false })
 export class Avatar extends Document {
-  @Prop({ required: true, unique: true, default: 'unknown.jpg' })
+  @Prop({ required: true, default: 'unknown.jpg' })
   key: string;
 
   @Prop({
     required: true,
-    unique: true,
     default:
       'https://twitterclone-pds-bucket.s3.sa-east-1.amazonaws.com/unknown.jpg',
   })

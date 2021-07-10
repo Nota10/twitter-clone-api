@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 
 @Injectable()
-export class AvatarService {
+export class AwsService {
   async upload(key: string, file: Express.Multer.File): Promise<any> {
     const s3 = new S3();
 

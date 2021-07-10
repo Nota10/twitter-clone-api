@@ -20,6 +20,24 @@ export const imageFileFilter = (
   callback(null, true);
 };
 
+export const videoFileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  callback: (error: Error | null, acceptFile: boolean) => void,
+): void => {
+  const regex = /\/(mp4|mov|mkv)$/;
+
+  if (!regex.test(file.mimetype)) {
+    return callback(
+      new BadRequestException(
+        `Arquivo '${file.mimetype}' não permitido. O tipo deve ser mp4, mov ou mkv`,
+      ),
+      false,
+    );
+  }
+  callback(null, true);
+};
+
 export const generateFileKey = (
   userId: string,
   file: Express.Multer.File,

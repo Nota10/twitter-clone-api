@@ -15,15 +15,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { imageFileFilter } from 'src/avatar/utils/upload.utils';
+import { imageFileFilter } from 'src/aws/utils/upload.utils';
 import { Request } from 'express';
-import { AvatarService } from 'src/avatar/avatar.service';
+import { AwsService } from 'src/aws/aws.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly avatarService: AvatarService,
+    private readonly awsService: AwsService,
   ) {}
 
   @Post()
@@ -51,7 +51,16 @@ export class UsersController {
 
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<User | null> {
-    return await this.usersService.remove(id);
+    try {
+      const removedUser = await this.usersService.remove(id);
+
+      if (removedUser && removedUser.avatar.key != 'unknown.jpg')
+        await this.awsService.delete(id);
+
+      return removedUser;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   @Post(':id/avatar')
@@ -70,8 +79,8 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
     try {
-      await this.avatarService.delete(id);
-      const avatarInfo = await this.avatarService.upload(id, file);
+      await this.awsService.delete(id);
+      const avatarInfo = await this.awsService.upload(id, file);
 
       return await this.usersService.updateAvatar(
         id,
