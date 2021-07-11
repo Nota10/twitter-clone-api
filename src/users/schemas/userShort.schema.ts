@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Avatar } from 'src/avatar/schemas/avatar.schema';
-
-export type UserShortDocument = UserShort & Document;
+import { Avatar } from 'src/aws/schemas/avatar.schema';
 
 @Schema({ _id: false })
 export class UserShort extends Document {

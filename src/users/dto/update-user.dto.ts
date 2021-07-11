@@ -1,35 +1,52 @@
 import { Type } from 'class-transformer';
 import {
-  IsEmail,
-  IsNotEmpty,
   IsBoolean,
-  IsDate,
-  Length,
   IsString,
+  IsInt,
+  IsArray,
   IsOptional,
 } from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
 
-export class UpdateUserDto {
-  @IsOptional()
-  @IsString()
-  @Length(2, 100)
-  name: string;
+import { CreateUserDto } from './create-user.dto';
+import { UserShort } from '../schemas/userShort.schema';
 
-  @IsOptional()
+export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsBoolean()
-  protected: boolean;
-
-  @IsNotEmpty()
-  @IsString()
-  password: string;
-
   @IsOptional()
-  @IsString()
-  @Length(1, 255)
-  bio: string;
+  isActive?: boolean;
 
+  @IsInt()
   @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  birthday: Date;
+  favoritesCount?: number;
+
+  @IsInt()
+  @IsOptional()
+  statusesCount?: number;
+
+  @IsInt()
+  @IsOptional()
+  followingCount?: number;
+
+  @IsInt()
+  @IsOptional()
+  followersCount?: number;
+
+  @IsString()
+  @IsOptional()
+  bio?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  protected?: boolean;
+
+  @Type(() => UserShort)
+  @IsArray({ each: true })
+  @IsOptional()
+  following?: UserShort[];
+
+  @Type(() => UserShort)
+  @IsArray({ each: true })
+  @IsOptional()
+  followers?: UserShort[];
 }

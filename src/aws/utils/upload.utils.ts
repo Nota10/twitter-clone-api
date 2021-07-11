@@ -39,10 +39,10 @@ export const videoFileFilter = (
 };
 
 export const generateFileKey = (
-  userId: string,
+  key: string,
   file: Express.Multer.File,
 ): string => {
   const fieldName = file.fieldname;
   const fileExtName = extname(file.originalname);
-  return `${fieldName}-${userId}${fileExtName}`;
+  return `${fieldName}-${key}${fileExtName}`;
 };

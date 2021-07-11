@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AwsModule } from './aws/aws.module';
-import { AvatarModule } from './avatar/avatar.module';
 
 @Module({
   imports: [
@@ -14,12 +13,13 @@ import { AvatarModule } from './avatar/avatar.module';
         uri: configService.get('MONGO_URI'),
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
       }),
       inject: [ConfigService],
     }),
     UsersModule,
     AwsModule,
-    AvatarModule,
   ],
 })
 export class AppModule {}

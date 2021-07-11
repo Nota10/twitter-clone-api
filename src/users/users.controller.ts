@@ -8,16 +8,21 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  Req,
+  HttpException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { imageFileFilter } from 'src/aws/utils/upload.utils';
-import { Request } from 'express';
 import { AwsService } from 'src/aws/aws.service';
+import { CreateResponse } from 'src/common/responses/create.response';
+import { FindIdResponse } from 'src/common/responses/find-id.response';
+import { FindResponse } from 'src/common/responses/find.response';
+import { DeleteResponse } from 'src/common/responses/delete.response';
+import { UpdateResponse } from 'src/common/responses/update.response';
 
 @Controller('users')
 export class UsersController {
@@ -27,40 +32,57 @@ export class UsersController {
   ) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return await this.usersService.create(createUserDto);
+  async create(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<CreateResponse<User>> {
+    const user = await this.usersService.create(createUserDto);
+    if (user.error) {
+      throw new HttpException(user, user.status);
+    }
+    return user;
   }
 
   @Get()
-  async findAll(): Promise<User[]> {
-    return await this.usersService.findAll();
+  async findAll(): Promise<FindResponse<User>> {
+    const users = await this.usersService.findAll();
+    if (users.error) {
+      throw new HttpException(users, users.status);
+    }
+    return users;
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
-    return await this.usersService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<FindIdResponse<User>> {
+    const user = await this.usersService.findOne(id);
+    if (user.error) {
+      throw new HttpException(user, user.status);
+    }
+    return user;
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return await this.usersService.update(id, updateUserDto);
+  ): Promise<UpdateResponse<User>> {
+    const user = await this.usersService.update(id, updateUserDto);
+
+    if (user.error) {
+      throw new HttpException(user, user.status);
+    }
+
+    return user;
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<User | null> {
-    try {
-      const removedUser = await this.usersService.remove(id);
+  async remove(@Param('id') id: string): Promise<DeleteResponse> {
+    const user = await this.usersService.remove(id);
 
-      if (removedUser && removedUser.avatar.key != 'unknown.jpg')
-        await this.awsService.delete(id);
-
-      return removedUser;
-    } catch (error) {
-      throw new Error(error);
+    if (user.error) {
+      throw new HttpException(user, user.status);
     }
+
+    return user;
   }
 
   @Post(':id/avatar')
@@ -75,18 +97,11 @@ export class UsersController {
   )
   async updateAvatar(
     @Param('id') id: string,
-    @Req() req: Request,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<User> {
+  ): Promise<any> {
     try {
-      await this.awsService.delete(id);
-      const avatarInfo = await this.awsService.upload(id, file);
-
-      return await this.usersService.updateAvatar(
-        id,
-        avatarInfo.Key,
-        avatarInfo.Location,
-      );
+      const user = await this.usersService.updateAvatar(id, file);
+      return user;
     } catch (error) {
       console.error(error);
       throw new Error(error.message);
