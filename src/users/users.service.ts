@@ -1,16 +1,15 @@
-import { Model } from 'mongoose';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './schemas/user.schema';
-import { AwsService } from 'src/aws/aws.service';
+import { Model } from 'mongoose';
+
 import { v4 } from 'uuid';
 
-import * as bcrypt from 'bcrypt';
+import { AwsService } from 'src/aws/aws.service';
+
+import { User } from './schemas/user.schema';
 import { UserShort } from './schemas/userShort.schema';
 
-import { CreateResponse } from 'src/common/responses/create.response';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { FindIdResponse } from 'src/common/responses/find-id.response';
 import { FindResponse } from 'src/common/responses/find.response';
 import { DeleteResponse } from 'src/common/responses/delete.response';
@@ -19,53 +18,11 @@ import { UpdateResponse } from 'src/common/responses/update.response';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(User.name) public readonly userModel: Model<User>,
     @InjectModel(UserShort.name)
     private userShortModel: Model<UserShort>,
     private readonly awsService: AwsService,
   ) {}
-
-  async create(createUserDto: CreateUserDto): Promise<CreateResponse<User>> {
-    let result: CreateResponse<User>;
-    try {
-      const user = new this.userModel(createUserDto);
-
-      user.password = bcrypt.hashSync(
-        createUserDto.password,
-        bcrypt.genSaltSync(8),
-      );
-
-      await user.save();
-
-      const data = user.set('password', undefined);
-
-      result = {
-        status: HttpStatus.CREATED,
-        message: 'User created successfully',
-        data,
-      };
-
-      return result;
-    } catch (error) {
-      if (error.code === 11000) {
-        const duplicateField = Object.keys(error.keyPattern)[0];
-
-        result = {
-          status: HttpStatus.CONFLICT,
-          message: `O campo '${duplicateField}' ${error.keyValue[duplicateField]} está duplicado`,
-          error: 'Duplicate Key',
-        };
-      } else {
-        result = {
-          status: HttpStatus.BAD_REQUEST,
-          message: error.message,
-          error: 'Bad Request',
-        };
-      }
-
-      return result;
-    }
-  }
 
   async findAll(): Promise<FindResponse<User>> {
     let result: FindResponse<User>;
@@ -80,7 +37,7 @@ export class UsersService {
       } else {
         result = {
           status: HttpStatus.OK,
-          message: 'User found',
+          message: 'Users found',
           data: users,
         };
       }
@@ -97,7 +54,7 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string): Promise<FindIdResponse<User>> {
+  async findOneById(id: string): Promise<FindIdResponse<User>> {
     let result: FindIdResponse<User>;
     try {
       const user = await this.userModel.findOne({ _id: id }, '-password');
@@ -131,6 +88,37 @@ export class UsersService {
           error: 'Bad Request',
         };
       }
+      return result;
+    }
+  }
+
+  async findOneByEmail(email: string): Promise<FindIdResponse<User>> {
+    let result: FindIdResponse<User>;
+    try {
+      const user = await this.userModel.findOne({ email });
+
+      if (!user) {
+        result = {
+          status: HttpStatus.NOT_FOUND,
+          message: `User not found with the given email ${email}`,
+          error: 'Not Found',
+        };
+      } else {
+        result = {
+          status: HttpStatus.OK,
+          message: 'User found',
+          data: user,
+        };
+      }
+
+      return result;
+    } catch (error) {
+      result = {
+        status: HttpStatus.BAD_REQUEST,
+        message: error.message,
+        error: 'Bad Request',
+      };
+
       return result;
     }
   }

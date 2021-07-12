@@ -9,6 +9,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Date } from 'mongoose';
+import { IsNotWhitespaced } from 'src/common/validators/IsNotWhitespaced.validator';
 
 export class CreateUserDto {
   @IsString()
@@ -20,6 +21,9 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
+  @IsNotWhitespaced('username', {
+    message: ({ value }) => `Username '${value}' cannot have whitespaces`,
+  })
   @Length(5, 50)
   username: string;
 

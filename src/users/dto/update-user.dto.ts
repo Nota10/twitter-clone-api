@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import { UserShort } from '../schemas/userShort.schema';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
