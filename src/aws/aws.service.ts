@@ -21,15 +21,6 @@ export class AwsService {
       ACL: 'public-read',
     };
 
-    // return new Promise((resolve, reject) => {
-    //   s3.upload(params, undefined, (err, data) => {
-    //     if (err) {
-    //       reject(err.message);
-    //     }
-    //     resolve(data);
-    //   });
-    // });
-
     return await s3.upload(params).promise();
   }
 
@@ -42,15 +33,6 @@ export class AwsService {
       Bucket: this.configService.get('AWS_BUCKET_NAME'),
       Key: key,
     };
-
-    // return new Promise((resolve, reject) => {
-    //   s3.deleteObject(params, (err, data) => {
-    //     if (err) {
-    //       reject(err.message);
-    //     }
-    //     resolve(data);
-    //   });
-    // });
 
     return await s3.deleteObject(params).promise();
   }
