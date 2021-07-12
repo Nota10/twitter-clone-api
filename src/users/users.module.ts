@@ -16,5 +16,6 @@ import { AwsModule } from 'src/aws/aws.module';
   ],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}

@@ -13,12 +13,9 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { imageFileFilter } from 'src/aws/utils/upload.utils';
-import { AwsService } from 'src/aws/aws.service';
-import { CreateResponse } from 'src/common/responses/create.response';
 import { FindIdResponse } from 'src/common/responses/find-id.response';
 import { FindResponse } from 'src/common/responses/find.response';
 import { DeleteResponse } from 'src/common/responses/delete.response';
@@ -26,21 +23,7 @@ import { UpdateResponse } from 'src/common/responses/update.response';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly awsService: AwsService,
-  ) {}
-
-  @Post()
-  async create(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<CreateResponse<User>> {
-    const user = await this.usersService.create(createUserDto);
-    if (user.error) {
-      throw new HttpException(user, user.status);
-    }
-    return user;
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   async findAll(): Promise<FindResponse<User>> {
@@ -53,7 +36,7 @@ export class UsersController {
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<FindIdResponse<User>> {
-    const user = await this.usersService.findOne(id);
+    const user = await this.usersService.findOneById(id);
     if (user.error) {
       throw new HttpException(user, user.status);
     }
@@ -98,13 +81,13 @@ export class UsersController {
   async updateAvatar(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<any> {
-    try {
-      const user = await this.usersService.updateAvatar(id, file);
-      return user;
-    } catch (error) {
-      console.error(error);
-      throw new Error(error.message);
+  ): Promise<UpdateResponse<User>> {
+    const user = await this.usersService.updateAvatar(id, file);
+
+    if (user.error) {
+      throw new HttpException(user, user.status);
     }
+
+    return user;
   }
 }
