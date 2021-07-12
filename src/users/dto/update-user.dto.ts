@@ -40,13 +40,11 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   protected?: boolean;
 
-  @Type(() => UserShort)
   @IsArray({ each: true })
   @IsOptional()
-  following?: UserShort[];
+  following?: string[];
 
-  @Type(() => UserShort)
   @IsArray({ each: true })
   @IsOptional()
-  followers?: UserShort[];
+  followers?: string[];
 }

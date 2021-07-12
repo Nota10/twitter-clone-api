@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Avatar, AvatarModel } from 'src/aws/schemas/avatar.schema';
-import { UserShort, UserShortSchema } from './userShort.schema';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -26,14 +25,14 @@ export class User extends Document {
   @Prop({ default: '' })
   bio: string;
 
-  @Prop({ type: [UserShortSchema], required: true, default: [] })
-  followers: UserShort[];
+  @Prop({ type: [String], required: true, default: [] })
+  followers: string[];
 
   @Prop({ required: true, default: 0 })
   followersCount: number;
 
-  @Prop({ type: [UserShortSchema], required: true, default: [] })
-  following: UserShort[];
+  @Prop({ type: [String], required: true, default: [] })
+  following: string[];
 
   @Prop({ required: true, default: 0 })
   followingCount: number;
