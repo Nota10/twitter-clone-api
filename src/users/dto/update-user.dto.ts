@@ -1,4 +1,3 @@
-import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsString,
@@ -9,7 +8,6 @@ import {
 import { PartialType } from '@nestjs/swagger';
 
 import { CreateUserDto } from 'src/auth/dto/create-user.dto';
-import { UserShort } from '../schemas/userShort.schema';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsBoolean()

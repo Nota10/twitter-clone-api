@@ -236,4 +236,130 @@ export class UsersService {
       };
     }
   }
+
+  async followUser(id: string, userId: string): Promise<UpdateResponse<User>> {
+    try {
+      if (id === userId) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `You can't follow yourself`,
+          error: 'Bad Request',
+        };
+      }
+
+      const user = await this.userModel.findById(id);
+      const userFollow = await this.userModel.findById(userId);
+
+      if (!user) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `User not found with the given id ${id}`,
+          error: 'Bad Request',
+        };
+      }
+
+      if (!userFollow) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `User to follow not found with the given id ${userId}`,
+          error: 'Bad Request',
+        };
+      }
+
+      const indexUser = user.following.indexOf(userId);
+      if (indexUser != -1) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `User ${user.username} already follows ${userFollow.username}`,
+          error: 'Bad Request',
+        };
+      }
+
+      user.following.push(userId);
+      user.followingCount++;
+
+      userFollow.followers.push(id);
+      userFollow.followersCount++;
+
+      await user.save();
+      await userFollow.save();
+
+      return {
+        status: HttpStatus.OK,
+        message: `User ${user.username} followed ${userFollow.username} successfully`,
+        data: user.set('password', undefined),
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: error.message,
+        error: 'Bad Request',
+      };
+    }
+  }
+
+  async unfollowUser(
+    id: string,
+    userId: string,
+  ): Promise<UpdateResponse<User>> {
+    try {
+      if (id === userId) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `You can't unfollow yourself`,
+          error: 'Bad Request',
+        };
+      }
+
+      const user = await this.userModel.findById(id);
+      const userUnfollow = await this.userModel.findById(userId);
+
+      if (!user) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `User not found with the given id ${id}`,
+          error: 'Bad Request',
+        };
+      }
+
+      if (!userUnfollow) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `User to unfollow not found with the given id ${userId}`,
+          error: 'Bad Request',
+        };
+      }
+
+      const indexUser = user.following.indexOf(userId);
+      const indexUnfollow = userUnfollow.followers.indexOf(id);
+      if (indexUser == -1 || indexUnfollow == -1) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          message: `User ${user.username} does not follow ${userUnfollow.username}`,
+          error: 'Bad Request',
+        };
+      }
+
+      user.following.splice(indexUser, 1);
+      user.followingCount--;
+
+      userUnfollow.followers.splice(indexUnfollow, 1);
+      userUnfollow.followersCount--;
+
+      await user.save();
+      await userUnfollow.save();
+
+      return {
+        status: HttpStatus.OK,
+        message: `User ${user.username} unfollowed ${userUnfollow.username} successfully`,
+        data: user.set('password', undefined),
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: error.message,
+        error: 'Bad Request',
+      };
+    }
+  }
 }

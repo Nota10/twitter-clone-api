@@ -90,4 +90,32 @@ export class UsersController {
 
     return user;
   }
+
+  @Post(':id/follow/:userId')
+  async followUser(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ): Promise<UpdateResponse<User>> {
+    const user = await this.usersService.followUser(id, userId);
+
+    if (user.error) {
+      throw new HttpException(user, user.status);
+    }
+
+    return user;
+  }
+
+  @Post(':id/unfollow/:userId')
+  async unfollowUser(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ): Promise<UpdateResponse<User>> {
+    const user = await this.usersService.unfollowUser(id, userId);
+
+    if (user.error) {
+      throw new HttpException(user, user.status);
+    }
+
+    return user;
+  }
 }
