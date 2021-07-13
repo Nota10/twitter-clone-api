@@ -14,6 +14,7 @@ import { FindIdResponse } from 'src/common/responses/find-id.response';
 import { FindResponse } from 'src/common/responses/find.response';
 import { DeleteResponse } from 'src/common/responses/delete.response';
 import { UpdateResponse } from 'src/common/responses/update.response';
+import { FollowUserDto } from './dto/follow-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -237,7 +238,10 @@ export class UsersService {
     }
   }
 
-  async followUser(id: string, userId: string): Promise<UpdateResponse<User>> {
+  async followUser(
+    followUserDto: FollowUserDto,
+  ): Promise<UpdateResponse<User>> {
+    const { id, userId } = followUserDto;
     try {
       if (id === userId) {
         return {
@@ -299,9 +303,9 @@ export class UsersService {
   }
 
   async unfollowUser(
-    id: string,
-    userId: string,
+    unfollowUserDto: FollowUserDto,
   ): Promise<UpdateResponse<User>> {
+    const { id, userId } = unfollowUserDto;
     try {
       if (id === userId) {
         return {
