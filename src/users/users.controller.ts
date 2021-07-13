@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FollowUserDto } from './dto/follow-user.dto';
 import { User } from './schemas/user.schema';
 import { imageFileFilter } from 'src/aws/utils/upload.utils';
 import { FindIdResponse } from 'src/common/responses/find-id.response';
@@ -91,12 +92,12 @@ export class UsersController {
     return user;
   }
 
-  @Post(':id/follow/:userId')
+  @Post(':id/follow')
   async followUser(
+    @Body() followUserDto: FollowUserDto,
     @Param('id') id: string,
-    @Param('userId') userId: string,
   ): Promise<UpdateResponse<User>> {
-    const user = await this.usersService.followUser(id, userId);
+    const user = await this.usersService.followUser(id, followUserDto.userId);
 
     if (user.error) {
       throw new HttpException(user, user.status);
@@ -105,12 +106,15 @@ export class UsersController {
     return user;
   }
 
-  @Post(':id/unfollow/:userId')
+  @Post(':id/unfollow')
   async unfollowUser(
+    @Body() unfollowUserDto: FollowUserDto,
     @Param('id') id: string,
-    @Param('userId') userId: string,
   ): Promise<UpdateResponse<User>> {
-    const user = await this.usersService.unfollowUser(id, userId);
+    const user = await this.usersService.unfollowUser(
+      id,
+      unfollowUserDto.userId,
+    );
 
     if (user.error) {
       throw new HttpException(user, user.status);
