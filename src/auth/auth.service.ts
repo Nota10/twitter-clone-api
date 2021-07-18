@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { LeanDocument } from 'mongoose';
 
 import * as bcrypt from 'bcrypt';
 
@@ -11,6 +12,8 @@ import { LoginResponse } from 'src/common/responses/login.response';
 import { CreateUserDto } from './dto/create-user.dto';
 
 import { User } from 'src/users/schemas/user.schema';
+import { UpdateResponse } from 'src/common/responses/update.response';
+import { UpdateUserPasswordDto } from './dto/update-user-pw.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +38,39 @@ export class AuthService {
     }
 
     return result;
+  }
+
+  async updatePassword(
+    updateUserPasswordDto: UpdateUserPasswordDto,
+  ): Promise<UpdateResponse<LeanDocument<User>>> {
+    let result: UpdateResponse<LeanDocument<User>>;
+    const { userId, password } = updateUserPasswordDto;
+    try {
+      const newPassword = await this.hashPassword(password);
+      const user = await this.usersService.updatePassword(userId, newPassword);
+
+      if (!user) {
+        result = {
+          status: HttpStatus.NOT_FOUND,
+          message: 'User not found',
+          error: 'Not Found',
+        };
+      } else {
+        result = {
+          status: HttpStatus.OK,
+          message: 'User password updated successfully',
+          data: user,
+        };
+      }
+
+      return result;
+    } catch (error) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: error.message,
+        error: 'Bad Request',
+      };
+    }
   }
 
   async registerUser(
@@ -78,7 +114,7 @@ export class AuthService {
     }
   }
 
-  private async hashPassword(password: string): Promise<string> {
+  async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
   }
 
