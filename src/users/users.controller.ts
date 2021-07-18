@@ -21,6 +21,7 @@ import { FindIdResponse } from 'src/common/responses/find-id.response';
 import { FindResponse } from 'src/common/responses/find.response';
 import { DeleteResponse } from 'src/common/responses/delete.response';
 import { UpdateResponse } from 'src/common/responses/update.response';
+import { UserResponse } from '../common/responses/user.response';
 
 @Controller('users')
 export class UsersController {
@@ -36,7 +37,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<FindIdResponse<User>> {
+  async findOne(
+    @Param('id') id: string,
+  ): Promise<FindIdResponse<UserResponse>> {
     const user = await this.usersService.findOneById(id);
     if (user.error) {
       throw new HttpException(user, user.status);

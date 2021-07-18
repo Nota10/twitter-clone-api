@@ -14,6 +14,7 @@ import { FindIdResponse } from 'src/common/responses/find-id.response';
 import { FindResponse } from 'src/common/responses/find.response';
 import { DeleteResponse } from 'src/common/responses/delete.response';
 import { UpdateResponse } from 'src/common/responses/update.response';
+import { UserResponse } from 'src/common/responses/user.response';
 import { FollowUserDto } from './dto/follow-user.dto';
 
 @Injectable()
@@ -55,8 +56,8 @@ export class UsersService {
     }
   }
 
-  async findOneById(id: string): Promise<FindIdResponse<User>> {
-    let result: FindIdResponse<User>;
+  async findOneById(id: string): Promise<FindIdResponse<UserResponse>> {
+    let result: FindIdResponse<UserResponse>;
     try {
       const user = await this.userModel.findOne({ _id: id }, '-password');
 
@@ -67,10 +68,12 @@ export class UsersService {
           error: 'Not Found',
         };
       } else {
+        const userResponse = await this.loadUserWithFriends(user);
+
         result = {
           status: HttpStatus.OK,
           message: 'User found',
-          data: user,
+          data: userResponse,
         };
       }
 
@@ -93,8 +96,8 @@ export class UsersService {
     }
   }
 
-  async findOneByEmail(email: string): Promise<FindIdResponse<User>> {
-    let result: FindIdResponse<User>;
+  async findOneByEmail(email: string): Promise<FindIdResponse<UserResponse>> {
+    let result: FindIdResponse<UserResponse>;
     try {
       const user = await this.userModel.findOne({ email });
 
@@ -105,10 +108,12 @@ export class UsersService {
           error: 'Not Found',
         };
       } else {
+        const userResponse = await this.loadUserWithFriends(user, true);
+
         result = {
           status: HttpStatus.OK,
           message: 'User found',
-          data: user,
+          data: userResponse,
         };
       }
 
@@ -365,5 +370,40 @@ export class UsersService {
         error: 'Bad Request',
       };
     }
+  }
+
+  private async loadUserWithFriends(
+    user: User,
+    showPassword = false,
+  ): Promise<UserResponse> {
+    const friendsSelectFields = 'avatar protected _id name username';
+
+    const followers = await this.userModel.find(
+      { _id: user.followers },
+      friendsSelectFields,
+    );
+    const following = await this.userModel.find(
+      { _id: user.following },
+      friendsSelectFields,
+    );
+
+    return {
+      password: showPassword ? user.password : undefined,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      protected: user.protected,
+      birthday: user.birthday,
+      avatar: user.avatar,
+      followersCount: user.followersCount,
+      followers,
+      followingCount: user.followingCount,
+      following,
+      bio: user.bio,
+      statusesCount: user.statusesCount,
+      favoritesCount: user.favoritesCount,
+      isActive: user.isActive,
+    };
   }
 }

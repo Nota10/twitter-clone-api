@@ -10,6 +10,7 @@ import { LeanDocument } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/schemas/user.schema';
 import { AuthService } from './../auth.service';
+import { UserResponse } from 'src/common/responses/user.response';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -27,7 +28,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(
     email: string,
     password: string,
-  ): Promise<LeanDocument<User> | HttpException> {
+  ): Promise<LeanDocument<UserResponse> | HttpException> {
     const user = await this.userService.findOneByEmail(email);
 
     if (user.data) {
@@ -37,11 +38,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       );
 
       if (isValid && user.data.isActive) {
-        const _user = user.data as User;
+        const _user = user.data as UserResponse;
 
-        _user.set({ password: undefined, __v: undefined });
+        _user.password = undefined;
+        // _user.set({ password: undefined, __v: undefined });
 
-        return _user.toJSON();
+        return _user;
       }
     }
 
