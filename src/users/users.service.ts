@@ -375,19 +375,16 @@ export class UsersService {
   private async loadUserWithFriends(
     user: User,
     showPassword = false,
-    friendsBlackList = '',
   ): Promise<UserResponse> {
-    if (!friendsBlackList)
-      friendsBlackList =
-        '-password -__v -followers -following -bio -followingCount -followersCount -email -birthday -isActive -statusesCount -favoritesCount -createdAt -updatedAt';
+    const friendsSelectFields = 'avatar protected _id name username';
 
     const followers = await this.userModel.find(
       { _id: user.followers },
-      friendsBlackList,
+      friendsSelectFields,
     );
     const following = await this.userModel.find(
       { _id: user.following },
-      friendsBlackList,
+      friendsSelectFields,
     );
 
     return {
@@ -400,9 +397,9 @@ export class UsersService {
       birthday: user.birthday,
       avatar: user.avatar,
       followersCount: user.followersCount,
-      followers: followers,
+      followers,
       followingCount: user.followingCount,
-      following: following,
+      following,
       bio: user.bio,
       statusesCount: user.statusesCount,
       favoritesCount: user.favoritesCount,
