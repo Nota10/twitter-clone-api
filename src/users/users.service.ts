@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, LeanDocument } from 'mongoose';
 
 import { v4 } from 'uuid';
 
@@ -96,8 +96,8 @@ export class UsersService {
     }
   }
 
-  async findOneByEmail(email: string): Promise<FindIdResponse<UserResponse>> {
-    let result: FindIdResponse<UserResponse>;
+  async findOneByEmail(email: string): Promise<FindIdResponse<User>> {
+    let result: FindIdResponse<User>;
     try {
       const user = await this.userModel.findOne({ email });
 
@@ -108,12 +108,10 @@ export class UsersService {
           error: 'Not Found',
         };
       } else {
-        const userResponse = await this.loadUserWithFriends(user, true);
-
         result = {
           status: HttpStatus.OK,
           message: 'User found',
-          data: userResponse,
+          data: user,
         };
       }
 
@@ -163,6 +161,22 @@ export class UsersService {
         error: 'Bad Request',
       };
     }
+  }
+
+  async updatePassword(
+    id: string,
+    newPassword: string,
+  ): Promise<LeanDocument<User> | null> {
+    const user = await this.userModel.findById(id);
+
+    if (user) {
+      user.set({ password: newPassword });
+
+      await user.save();
+
+      return user.set('password', undefined).toJSON();
+    }
+    return null;
   }
 
   async remove(id: string): Promise<DeleteResponse> {

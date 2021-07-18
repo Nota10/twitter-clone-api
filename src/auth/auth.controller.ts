@@ -4,12 +4,14 @@ import {
   HttpCode,
   HttpException,
   Logger,
+  Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { Request } from 'express';
+import { LeanDocument } from 'mongoose';
 
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt.guard';
@@ -21,6 +23,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 import { CreateResponse } from 'src/common/responses/create.response';
 import { LoginResponse } from 'src/common/responses/login.response';
+import { UpdateUserPasswordDto } from './dto/update-user-pw.dto';
+import { UpdateResponse } from 'src/common/responses/update.response';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +48,17 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<CreateResponse<User>> {
     const user = await this.authService.registerUser(createUserDto);
+    if (user.error) {
+      throw new HttpException(user, user.status);
+    }
+    return user;
+  }
+
+  @Patch('password')
+  async updatePassword(
+    @Body() updateUserPassword: UpdateUserPasswordDto,
+  ): Promise<UpdateResponse<LeanDocument<User>>> {
+    const user = await this.authService.updatePassword(updateUserPassword);
     if (user.error) {
       throw new HttpException(user, user.status);
     }
