@@ -7,9 +7,9 @@ import { Strategy } from 'passport-local';
 
 import { LeanDocument } from 'mongoose';
 
-import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/schemas/user.schema';
 import { AuthService } from './../auth.service';
+import { UsersService } from '../../users/users.service';
+import { User } from '../../users/schemas/user.schema';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

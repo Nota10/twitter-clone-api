@@ -9,7 +9,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Date } from 'mongoose';
-import { IsNotWhitespaced } from 'src/common/validators/IsNotWhitespaced.validator';
+import { IsNotWhitespaced } from '../../common/validators/IsNotWhitespaced.validator';
 
 export class CreateUserDto {
   @IsString()
