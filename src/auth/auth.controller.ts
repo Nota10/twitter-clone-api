@@ -17,14 +17,13 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
 
-import { User } from 'src/users/schemas/user.schema';
-
 import { CreateUserDto } from './dto/create-user.dto';
-
-import { CreateResponse } from 'src/common/responses/create.response';
-import { LoginResponse } from 'src/common/responses/login.response';
+import { LoginResponse } from '../common/responses/login.response';
+import { CreateResponse } from '../common/responses/create.response';
 import { UpdateUserPasswordDto } from './dto/update-user-pw.dto';
-import { UpdateResponse } from 'src/common/responses/update.response';
+import { UpdateResponse } from '../common/responses/update.response';
+import { User } from '../users/schemas/user.schema';
+
 
 @Controller('auth')
 export class AuthController {

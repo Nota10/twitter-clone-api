@@ -16,12 +16,12 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FollowUserDto } from './dto/follow-user.dto';
 import { User } from './schemas/user.schema';
-import { imageFileFilter } from 'src/aws/utils/upload.utils';
-import { FindIdResponse } from 'src/common/responses/find-id.response';
-import { FindResponse } from 'src/common/responses/find.response';
-import { DeleteResponse } from 'src/common/responses/delete.response';
-import { UpdateResponse } from 'src/common/responses/update.response';
 import { UserResponse } from '../common/responses/user.response';
+import { FindResponse } from '../common/responses/find.response';
+import { FindIdResponse } from '../common/responses/find-id.response';
+import { UpdateResponse } from '../common/responses/update.response';
+import { DeleteResponse } from '../common/responses/delete.response';
+import { imageFileFilter } from '../aws/utils/upload.utils';
 
 @Controller('users')
 export class UsersController {

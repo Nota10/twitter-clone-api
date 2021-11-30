@@ -6,8 +6,6 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { swaggerConfig } from './configs/swagger.config';
 
-import { config } from 'aws-sdk';
-
 async function bootstrap(): Promise<void> {
   const logger: Logger = new Logger('Main');
 
@@ -16,12 +14,6 @@ async function bootstrap(): Promise<void> {
   const port = configService.get('PORT');
   const baseUrl = `http://localhost:${port}/api`;
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-
-  config.update({
-    accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
-    secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
-    region: configService.get('AWS_REGION'),
-  });
 
   SwaggerModule.setup(`api/swagger/v1`, app, document);
 

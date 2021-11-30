@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
-import { AwsModule } from './aws/aws.module';
 import { AuthModule } from './auth/auth.module';
+import { TweetModule } from './tweet/tweet.module';
 
 @Module({
   imports: [
@@ -20,8 +20,8 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
     }),
     UsersModule,
-    AwsModule,
     AuthModule,
+    TweetModule,
   ],
 })
 export class AppModule {}

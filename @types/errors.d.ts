@@ -3,7 +3,8 @@ type ErrorsTypes =
   | 'Not Found'
   | 'Duplicate Key'
   | 'Not Modified'
-  | 'Cast Error';
+  | 'Cast Error'
+  | 'Unauthorized';
 
 export default ErrorsTypes;
 

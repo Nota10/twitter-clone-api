@@ -4,18 +4,18 @@ import { Model, LeanDocument } from 'mongoose';
 
 import { v4 } from 'uuid';
 
-import { AwsService } from 'src/aws/aws.service';
 
 import { User } from './schemas/user.schema';
 import { UserShort } from './schemas/userShort.schema';
 
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FindIdResponse } from 'src/common/responses/find-id.response';
-import { FindResponse } from 'src/common/responses/find.response';
-import { DeleteResponse } from 'src/common/responses/delete.response';
-import { UpdateResponse } from 'src/common/responses/update.response';
-import { UserResponse } from 'src/common/responses/user.response';
 import { FollowUserDto } from './dto/follow-user.dto';
+import { AwsService } from '../aws/aws.service';
+import { FindResponse } from '../common/responses/find.response';
+import { UserResponse } from '../common/responses/user.response';
+import { FindIdResponse } from '../common/responses/find-id.response';
+import { UpdateResponse } from '../common/responses/update.response';
+import { DeleteResponse } from '../common/responses/delete.response';
 
 @Injectable()
 export class UsersService {

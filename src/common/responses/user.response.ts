@@ -1,4 +1,4 @@
-import { Avatar } from 'src/aws/schemas/avatar.schema';
+import { Avatar } from '../../aws/schemas/avatar.schema';
 import { User } from '../../users/schemas/user.schema';
 
 export interface UserResponse {
