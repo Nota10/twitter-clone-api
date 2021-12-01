@@ -73,7 +73,9 @@ export class TweetService {
 
       const query = [];
       query.push({ 
-        $match: {"user.id": user._id}
+        $match: {"user.id": user._id},
+      }, {
+        $sort: { createdAt: -1 }
       });
 
       if (params.get_childs === 'true') {

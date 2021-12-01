@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TweetModule } from './tweet/tweet.module';
+import { FeedModule } from './feed/feed.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TweetModule } from './tweet/tweet.module';
     UsersModule,
     AuthModule,
     TweetModule,
+    FeedModule,
   ],
 })
 export class AppModule {}
