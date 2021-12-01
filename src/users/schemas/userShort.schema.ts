@@ -4,13 +4,13 @@ import { Avatar } from '../../aws/schemas/avatar.schema';
 
 @Schema({ _id: false })
 export class UserShort extends Document {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   id: string;
 
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   username: string;
 
   @Prop({ required: true })
