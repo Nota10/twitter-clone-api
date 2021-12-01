@@ -62,7 +62,7 @@ export class AuthService {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -91,7 +91,7 @@ export class AuthService {
       };
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 11000) {
         const duplicateField = Object.keys(error.keyPattern)[0];
 

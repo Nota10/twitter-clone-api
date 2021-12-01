@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, UseGuards, Req } from '@nestjs/common';
 import { TweetService } from './tweet.service';
 import { CreateTweetDto } from './dto/create-tweet.dto';
 import { FindResponse } from '../common/responses/find.response';
@@ -12,14 +12,20 @@ export class TweetController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createTweetDto: CreateTweetDto, @Req() req: Request) {
-    return this.tweetService.create(createTweetDto, req.user);
+  async create(@Body() createTweetDto: CreateTweetDto, @Req() req: Request) {
+    const tweet = await this.tweetService.create(createTweetDto, req.user);
+
+    if (tweet.error) {
+      throw new HttpException(tweet, tweet.status);
+    }
+
+    return tweet;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Req() req: Request): Promise<FindResponse<Tweet>> {
-    const tweets = await this.tweetService.findAll(req.user);
+    const tweets = await this.tweetService.findAll(req.user, req.query);
 
     if (tweets.error) {
       throw new HttpException(tweets, tweets.status);
@@ -29,8 +35,8 @@ export class TweetController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const tweet = await this.tweetService.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req: Request) {
+    const tweet = await this.tweetService.findOne(id, req.query);
 
     if (tweet.error) {
       throw new HttpException(tweet, tweet.status);
@@ -43,6 +49,42 @@ export class TweetController {
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() req: Request) {
     const tweet = await this.tweetService.remove(id, req.user);
+
+    if (tweet.error) {
+      throw new HttpException(tweet, tweet.status);
+    }
+
+    return tweet;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/like')
+  async like(@Param('id') id: string, @Req() req: Request) {
+    const tweet = await this.tweetService.like(id, req.user);
+
+    if (tweet.error) {
+      throw new HttpException(tweet, tweet.status);
+    }
+
+    return tweet;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/deslike')
+  async deslike(@Param('id') id: string, @Req() req: Request) {
+    const tweet = await this.tweetService.deslike(id, req.user);
+
+    if (tweet.error) {
+      throw new HttpException(tweet, tweet.status);
+    }
+
+    return tweet;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/share')
+  async share(@Param('id') id: string, @Req() req: Request) {
+    const tweet = await this.tweetService.share(id, req.user);
 
     if (tweet.error) {
       throw new HttpException(tweet, tweet.status);

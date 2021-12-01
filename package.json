@@ -46,7 +46,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@gcoreplus/nestjs-aws-serverless": "^1.1.1-rc1",
     "@nestjs/common": "^7.6.15",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.6.15",
@@ -55,8 +54,6 @@
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-express": "^7.6.18",
     "@nestjs/swagger": "^4.8.1",
-    "aws-sdk": "^2.943.0",
-    "aws-serverless-express": "^3.4.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
@@ -74,6 +71,7 @@
     "@nestjs/cli": "^7.6.0",
     "@nestjs/schematics": "^7.3.0",
     "@nestjs/testing": "^7.6.15",
+    "@types/validator": "^13.7.0",
     "@types/bcrypt": "^5.0.0",
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",

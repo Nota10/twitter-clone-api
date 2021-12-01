@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { UserShort } from '../../users/schemas/userShort.schema';
 
 @Schema({ timestamps: true })
@@ -13,14 +13,20 @@ export class Tweet extends Document {
   @Prop({ type: UserShort, required: true })
   user: UserShort;
 
-  @Prop({ required: false, default: null })
+  @Prop({ type: Types.ObjectId, required: false, default: null })
   parentTweetId: string;
 
   @Prop({ required: true, default: 0 })
-  like: number;
+  likeCount: number;
+
+  @Prop({ type: [String], required: true, default: [] })
+  likeList: string[];
 
   @Prop({ required: true, default: 0 })
-  deslike: number;
+  deslikeCount: number;
+
+  @Prop({ type: [String], required: true, default: [] })
+  deslikeList: string[];
 
   @Prop({ type: [String], required: true, default: [] })
   hashtags: string[];
