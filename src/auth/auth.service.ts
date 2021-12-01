@@ -20,12 +20,13 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  login(data: Express.User | undefined): LoginResponse {
+  login(data: any): LoginResponse {
     let result: LoginResponse;
     if (data) {
       result = {
         status: HttpStatus.OK,
         message: 'Successfully logged in',
+        userId: data._id,
         accessToken: this.jwtService.sign(data),
       };
     } else {
