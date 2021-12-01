@@ -10,7 +10,6 @@ import { UserShort } from './schemas/userShort.schema';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FollowUserDto } from './dto/follow-user.dto';
-import { AwsService } from '../aws/aws.service';
 import { FindResponse } from '../common/responses/find.response';
 import { UserResponse } from '../common/responses/user.response';
 import { FindIdResponse } from '../common/responses/find-id.response';
@@ -22,8 +21,7 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) public readonly userModel: Model<User>,
     @InjectModel(UserShort.name)
-    private userShortModel: Model<UserShort>,
-    private readonly awsService: AwsService,
+    private userShortModel: Model<UserShort>
   ) {}
 
   async findAll(): Promise<FindResponse<User>> {
@@ -45,7 +43,7 @@ export class UsersService {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       result = {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -78,7 +76,7 @@ export class UsersService {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       if (error.kind === 'ObjectId') {
         result = {
           status: HttpStatus.BAD_REQUEST,
@@ -116,7 +114,7 @@ export class UsersService {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       result = {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -154,7 +152,7 @@ export class UsersService {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -191,8 +189,8 @@ export class UsersService {
           error: 'Not Found',
         };
       } else {
-        if (user && user.avatar.key !== 'unknown.jpg')
-          await this.awsService.delete(id);
+        // if (user && user.avatar.key !== 'unknown.jpg')
+        //   await this.awsService.delete(id);
 
         result = {
           status: HttpStatus.OK,
@@ -200,7 +198,7 @@ export class UsersService {
         };
       }
       return result;
-    } catch (error) {
+    } catch (error: any) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -218,10 +216,14 @@ export class UsersService {
       const user = await this.userModel.findById(id);
 
       if (user) {
-        if (user.avatar.key !== 'unknown.jpg')
-          await this.awsService.delete(user.avatar.key);
+        // if (user.avatar.key !== 'unknown.jpg')
+          // await this.awsService.delete(user.avatar.key);
 
-        const avatarInfo = await this.awsService.upload(v4(), file);
+        // const avatarInfo = await this.awsService.upload(v4(), file);
+        const avatarInfo = {
+          Key: 'key',
+          Location: 'https://twitterclone-pds-bucket.s3.sa-east-1.amazonaws.com/unknown.jpg',
+        };
 
         const avatar = {
           key: avatarInfo.Key,
@@ -248,7 +250,7 @@ export class UsersService {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -312,7 +314,7 @@ export class UsersService {
         message: `User ${user.username} followed ${userFollow.username} successfully`,
         data: user.set('password', undefined),
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
@@ -377,7 +379,7 @@ export class UsersService {
         message: `User ${user.username} unfollowed ${userUnfollow.username} successfully`,
         data: user.set('password', undefined),
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: error.message,
