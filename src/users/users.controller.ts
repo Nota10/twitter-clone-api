@@ -21,7 +21,7 @@ import { FindResponse } from '../common/responses/find.response';
 import { FindIdResponse } from '../common/responses/find-id.response';
 import { UpdateResponse } from '../common/responses/update.response';
 import { DeleteResponse } from '../common/responses/delete.response';
-import { imageFileFilter } from '../aws/utils/upload.utils';
+import { imageFileFilter } from './utils/upload.utils';
 
 @Controller('users')
 export class UsersController {
