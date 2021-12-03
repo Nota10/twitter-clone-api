@@ -9,6 +9,8 @@ import {
   UseInterceptors,
   UploadedFile,
   HttpException,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -22,6 +24,9 @@ import { FindIdResponse } from '../common/responses/find-id.response';
 import { UpdateResponse } from '../common/responses/update.response';
 import { DeleteResponse } from '../common/responses/delete.response';
 import { imageFileFilter } from './utils/upload.utils';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { Request } from 'express';
+import { Tweet } from 'src/tweet/schema/tweet.schema';
 
 @Controller('users')
 export class UsersController {
@@ -95,11 +100,29 @@ export class UsersController {
     return user;
   }
 
-  @Post('follow')
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/tweets')
+  async getUserTweets(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<FindResponse<Tweet>> {
+    const { user, query } = req;
+    const tweets = await this.usersService.getUserTweets(user, id, query);
+
+    if (tweets.error) {
+      throw new HttpException(tweets, tweets.status);
+    }
+
+    return tweets;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/follow')
   async followUser(
-    @Body() followUserDto: FollowUserDto,
+    @Param('id') id: string,
+    @Req() req: Request,
   ): Promise<UpdateResponse<User>> {
-    const user = await this.usersService.followUser(followUserDto);
+    const user = await this.usersService.followUser(req.user, id);
 
     if (user.error) {
       throw new HttpException(user, user.status);
@@ -108,11 +131,13 @@ export class UsersController {
     return user;
   }
 
-  @Post('unfollow')
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/unfollow')
   async unfollowUser(
-    @Body() unfollowUserDto: FollowUserDto,
+    @Param('id') id: string,
+    @Req() req: Request,
   ): Promise<UpdateResponse<User>> {
-    const user = await this.usersService.unfollowUser(unfollowUserDto);
+    const user = await this.usersService.unfollowUser(req.user, id);
 
     if (user.error) {
       throw new HttpException(user, user.status);

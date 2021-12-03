@@ -2,26 +2,24 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, LeanDocument } from 'mongoose';
 
-import { v4 } from 'uuid';
-
-
 import { User } from './schemas/user.schema';
 import { UserShort } from './schemas/userShort.schema';
 
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FollowUserDto } from './dto/follow-user.dto';
 import { FindResponse } from '../common/responses/find.response';
 import { UserResponse } from '../common/responses/user.response';
 import { FindIdResponse } from '../common/responses/find-id.response';
 import { UpdateResponse } from '../common/responses/update.response';
 import { DeleteResponse } from '../common/responses/delete.response';
+import { Tweet } from 'src/tweet/schema/tweet.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) public readonly userModel: Model<User>,
+    @InjectModel(Tweet.name) public readonly tweetModel: Model<Tweet>,
     @InjectModel(UserShort.name)
-    private userShortModel: Model<UserShort>
+    private userShortModel: Model<UserShort>,
   ) {}
 
   async findAll(): Promise<FindResponse<User>> {
@@ -52,6 +50,60 @@ export class UsersService {
 
       return result;
     }
+  }
+
+  async getUserTweets(
+    loggedUser: any,
+    userId: string,
+    params: any,
+  ): Promise<FindResponse<Tweet>> {
+    const user = await this.userModel.findOne({ _id: userId }, '-password');
+
+    if (!user) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: `User not found with the given id ${userId}`,
+        error: 'Not Found',
+      };
+    }
+
+    const loggedUserIndex = user.following.indexOf(loggedUser._id);
+    if (user.protected && loggedUserIndex === -1) {
+      return {
+        status: HttpStatus.UNAUTHORIZED,
+        message: `You does not follow user ${userId}`,
+        error: 'Unauthorized',
+      };
+    }
+
+    const query = [];
+    query.push(
+      {
+        $match: { 'user.id': userId },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    );
+
+    if (params.getChilds === 'true') {
+      query.push({
+        $lookup: {
+          from: 'tweets',
+          localField: '_id',
+          foreignField: 'parentTweetId',
+          as: 'childList',
+        },
+      });
+    }
+
+    const tweets = await this.tweetModel.aggregate(query).exec();
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Tweets found',
+      data: tweets,
+    };
   }
 
   async findOneById(id: string): Promise<FindIdResponse<UserResponse>> {
@@ -217,12 +269,13 @@ export class UsersService {
 
       if (user) {
         // if (user.avatar.key !== 'unknown.jpg')
-          // await this.awsService.delete(user.avatar.key);
+        // await this.awsService.delete(user.avatar.key);
 
         // const avatarInfo = await this.awsService.upload(v4(), file);
         const avatarInfo = {
           Key: 'key',
-          Location: 'https://twitterclone-pds-bucket.s3.sa-east-1.amazonaws.com/unknown.jpg',
+          Location:
+            'https://twitterclone-pds-bucket.s3.sa-east-1.amazonaws.com/unknown.jpg',
         };
 
         const avatar = {
@@ -260,11 +313,11 @@ export class UsersService {
   }
 
   async followUser(
-    followUserDto: FollowUserDto,
+    loggedUser: any,
+    targetUserId: string,
   ): Promise<UpdateResponse<User>> {
-    const { id, userId } = followUserDto;
     try {
-      if (id === userId) {
+      if (loggedUser._id === targetUserId) {
         return {
           status: HttpStatus.BAD_REQUEST,
           message: `You can't follow yourself`,
@@ -272,13 +325,13 @@ export class UsersService {
         };
       }
 
-      const user = await this.userModel.findById(id);
-      const userFollow = await this.userModel.findById(userId);
+      const user = await this.userModel.findById(loggedUser._id);
+      const userFollow = await this.userModel.findById(targetUserId);
 
       if (!user) {
         return {
           status: HttpStatus.BAD_REQUEST,
-          message: `User not found with the given id ${id}`,
+          message: `User not found with the given id ${loggedUser._id}`,
           error: 'Bad Request',
         };
       }
@@ -286,12 +339,12 @@ export class UsersService {
       if (!userFollow) {
         return {
           status: HttpStatus.BAD_REQUEST,
-          message: `User to follow not found with the given id ${userId}`,
+          message: `User to follow not found with the given id ${targetUserId}`,
           error: 'Bad Request',
         };
       }
 
-      const indexUser = user.following.indexOf(userId);
+      const indexUser = user.following.indexOf(targetUserId);
       if (indexUser != -1) {
         return {
           status: HttpStatus.BAD_REQUEST,
@@ -300,10 +353,10 @@ export class UsersService {
         };
       }
 
-      user.following.push(userId);
+      user.following.push(targetUserId);
       user.followingCount++;
 
-      userFollow.followers.push(id);
+      userFollow.followers.push(user._id);
       userFollow.followersCount++;
 
       await user.save();
@@ -324,11 +377,11 @@ export class UsersService {
   }
 
   async unfollowUser(
-    unfollowUserDto: FollowUserDto,
+    loggedUser: any,
+    targetUserId: string,
   ): Promise<UpdateResponse<User>> {
-    const { id, userId } = unfollowUserDto;
     try {
-      if (id === userId) {
+      if (loggedUser._id === targetUserId) {
         return {
           status: HttpStatus.BAD_REQUEST,
           message: `You can't unfollow yourself`,
@@ -336,13 +389,13 @@ export class UsersService {
         };
       }
 
-      const user = await this.userModel.findById(id);
-      const userUnfollow = await this.userModel.findById(userId);
+      const user = await this.userModel.findById(loggedUser._id);
+      const userUnfollow = await this.userModel.findById(targetUserId);
 
       if (!user) {
         return {
           status: HttpStatus.BAD_REQUEST,
-          message: `User not found with the given id ${id}`,
+          message: `User not found with the given id ${user}`,
           error: 'Bad Request',
         };
       }
@@ -350,13 +403,13 @@ export class UsersService {
       if (!userUnfollow) {
         return {
           status: HttpStatus.BAD_REQUEST,
-          message: `User to unfollow not found with the given id ${userId}`,
+          message: `User to unfollow not found with the given id ${targetUserId}`,
           error: 'Bad Request',
         };
       }
 
-      const indexUser = user.following.indexOf(userId);
-      const indexUnfollow = userUnfollow.followers.indexOf(id);
+      const indexUser = user.following.indexOf(targetUserId);
+      const indexUnfollow = userUnfollow.followers.indexOf(targetUserId);
       if (indexUser == -1 || indexUnfollow == -1) {
         return {
           status: HttpStatus.BAD_REQUEST,
