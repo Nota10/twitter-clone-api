@@ -409,7 +409,7 @@ export class UsersService {
       }
 
       const indexUser = user.following.indexOf(targetUserId);
-      const indexUnfollow = userUnfollow.followers.indexOf(targetUserId);
+      const indexUnfollow = userUnfollow.followers.indexOf(loggedUser._id);
       if (indexUser == -1 || indexUnfollow == -1) {
         return {
           status: HttpStatus.BAD_REQUEST,
